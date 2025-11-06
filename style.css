@@ -2,4 +2,10 @@ body {
     height: 100%;
 }
 
+circle:hover {
+    stroke: black;
+    stroke-width: 1.5px;
+    cursor: pointer;
+}
+
 /* YOUR CSS CODE GOES HERE */
