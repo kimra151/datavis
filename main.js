@@ -81,18 +81,30 @@ window.onload = () => {
         }
 
         // Punkte zeichnen
-        svg.selectAll("circle")
+        const shape = d3.scaleOrdinal()
+            .domain(["Sedan", "SUV", "Sports Car", "Wagon", "Minivan"])
+            .range([
+                d3.symbolCircle,
+                d3.symbolSquare,
+                d3.symbolTriangle,
+                d3.symbolDiamond,
+                d3.symbolCross
+            ]);
+
+        // Punkte zeichnen (als <path>)
+        svg.selectAll(".point")
             .data(data)
             .enter()
-            .append("circle")
-            .attr("cx", d => x(d.HP))
-            .attr("cy", d => y(d.Cost))
-            .attr("r", 5)
+            .append("path")
+            .attr("class", "point")
+            .attr("transform", d => `translate(${x(d.HP)}, ${y(d.Cost)})`)
+            .attr("d", d3.symbol().type(d => shape(d.Type)).size(80))
             .attr("fill", d => color(d.Type))
-            .attr("opacity", 0.75)
+            .attr("opacity", 0.85)
             .on("click", function() {
                 selectPoint(this);
             });
+
 
         // Legende
         const legend = svg.selectAll(".legend")
@@ -101,10 +113,9 @@ window.onload = () => {
             .append("g")
             .attr("transform", (d, i) => `translate(0, ${i * 20})`);
 
-        legend.append("rect")
-            .attr("x", width - 20)
-            .attr("width", 12)
-            .attr("height", 12)
+        legend.append("path")
+            .attr("transform", `translate(${width - 14}, 6)`)
+            .attr("d", d3.symbol().type(d => shape(d)).size(100))
             .attr("fill", d => color(d));
 
         legend.append("text")
