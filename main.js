@@ -5,30 +5,6 @@ window.onload = () => {
     d3.csv("cars.csv").then((data) => {
         console.log(data); // Debug-Ausgabe
 
-        // Tabelle erzeugen
-        const table = d3.select("#carTable");
-
-        const thead = table.append("thead");
-        thead.append("tr")
-            .selectAll("th")
-            .data(Object.keys(data[0]))
-            .enter()
-            .append("th")
-            .text((d) => d);
-
-        const tbody = table.append("tbody");
-        const rows = tbody.selectAll("tr")
-            .data(data)
-            .enter()
-            .append("tr");
-
-        rows.selectAll("td")
-            .data((d) => Object.values(d))
-            .enter()
-            .append("td")
-            .text((d) => d);
-
-
         // --- TEIL 2: SCATTERPLOT ERZEUGEN ---
 
         // Numerische Werte parsen
