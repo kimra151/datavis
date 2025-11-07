@@ -1,30 +1,25 @@
+let selectedPoint = null;
+
 window.onload = function () {
   d3.csv("cars.csv").then(function (data) {
     console.log("Daten geladen:", data[0]);
 
-    // Spalten finden
     const hpKey = Object.keys(data[0]).find(k => k.includes("Horsepower"));
     const costKey = Object.keys(data[0]).find(k => k.includes("Dealer"));
 
-    // Parsen
     data.forEach(d => {
       d.HP = +d[hpKey] || 0;
       d.Cost = +d[costKey] || 0;
       d.Engine = +d["Engine Size (l)"] || 0;
-      d["City Miles Per Gallon"] = +d["City Miles Per Gallon"] || 0;
-      d["Highway Miles Per Gallon"] = +d["Highway Miles Per Gallon"] || 0;
       d.Cyl = +d.Cyl || 0;
-      d["Wheel Base"] = +d["Wheel Base"] || 0;
-      d.Len = +d.Len || 0;
+      d.CityMPG = +d["City Miles Per Gallon"] || 0;
       d.Weight = +d.Weight || 0;
     });
 
-    // Layout
-    const margin = { top: 40, right: 60, bottom: 70, left: 90 };
-    const width = 700 - margin.left - margin.right;
-    const height = 500 - margin.top - margin.bottom;
+    const margin = { top: 40, right: 70, bottom: 70, left: 90 };
+    const width = 720 - margin.left - margin.right;
+    const height = 520 - margin.top - margin.bottom;
 
-    // SVG
     const svg = d3.select("#chart")
       .append("svg")
       .attr("width", width + margin.left + margin.right)
@@ -32,7 +27,6 @@ window.onload = function () {
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    // Skalen
     const x = d3.scaleLinear()
       .domain([0, d3.max(data, d => d.HP)]).nice()
       .range([0, width]);
@@ -44,24 +38,25 @@ window.onload = function () {
     // Achsen
     svg.append("g")
       .attr("transform", `translate(0,${height})`)
-      .call(d3.axisBottom(x).ticks(8));
+      .call(d3.axisBottom(x).ticks(8))
+      .append("text")
+      .attr("x", width / 2)
+      .attr("y", 40)
+      .attr("fill", "black")
+      .attr("font-size", 14)
+      .attr("text-anchor", "middle")
+      .text("Horsepower");
 
     svg.append("g")
-      .call(d3.axisLeft(y).tickFormat(d3.format("$,.0f")));
-
-    // Labels
-    svg.append("text")
-      .attr("x", width / 2)
-      .attr("y", height + 50)
-      .attr("text-anchor", "middle")
-      .text("Horsepower (HP)");
-
-    svg.append("text")
+      .call(d3.axisLeft(y).tickFormat(d3.format("$,.0f")))
+      .append("text")
       .attr("transform", "rotate(-90)")
       .attr("x", -height / 2)
-      .attr("y", -65)
+      .attr("y", -60)
+      .attr("fill", "black")
+      .attr("font-size", 14)
       .attr("text-anchor", "middle")
-      .text("Dealer Cost ($)");
+      .text("Miles Per Gallon");
 
     // Farben & Symbole
     const types = ["Sedan", "SUV", "Sports Car", "Wagon", "Minivan"];
@@ -71,27 +66,17 @@ window.onload = function () {
 
     const symbol = d3.scaleOrdinal()
       .domain(types)
-      .range([
-        d3.symbolCircle,
-        d3.symbolSquare,
-        d3.symbolTriangle,
-        d3.symbolDiamond,
-        d3.symbolCross
-      ]);
+      .range([d3.symbolCircle, d3.symbolSquare, d3.symbolTriangle, d3.symbolDiamond, d3.symbolCross]);
 
-    let selectedPoint = null;
-
-    function selectPoint(element, datum) {
-      if (selectedPoint) {
-        selectedPoint.attr("stroke", "none").attr("stroke-width", 0);
-      }
-      selectedPoint = d3.select(element)
+    function selectPoint(el, d) {
+      if (selectedPoint) selectedPoint.attr("stroke", "none");
+      selectedPoint = d3.select(el)
         .attr("stroke", "black")
         .attr("stroke-width", 3);
-      updateInfo(datum);
+      updateInfo(d);
     }
 
-    // PUNKTE (als <path> für Symbole)
+    // Punkte
     svg.selectAll(".point")
       .data(data)
       .enter()
@@ -101,12 +86,12 @@ window.onload = function () {
       .attr("transform", d => `translate(${x(d.HP)}, ${y(d.Cost)})`)
       .attr("fill", d => color(d.Type))
       .style("cursor", "pointer")
-      .on("click", function (event, d) {
+      .on("click", function (e, d) { 
         d = d3.select(this).datum();
-        selectPoint(this, d);
+        selectPoint(this, d); 
       });
 
-    // LEGENDE
+    // Legende
     const legend = svg.selectAll(".legend")
       .data(types)
       .enter()
@@ -125,19 +110,85 @@ window.onload = function () {
       .attr("text-anchor", "end")
       .text(d => d);
 
-
   }).catch(err => {
-    console.error(err);
     d3.select("body").append("p")
       .text("FEHLER: cars.csv nicht gefunden!")
-      .style("color", "red");
+      .style("color", "red")
+      .style("text-align", "center");
   });
 };
 
-// TABELLE AKTUALISIEREN
+// STARPLOT – BONUS!
+function drawStarPlot(car) {
+  d3.select("#starplot").html("");
+
+  const width = 320, height = 320;
+  const radius = 100;
+  const cx = width / 2, cy = height / 2;
+
+  const svg = d3.select("#starplot")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+  const features = [
+    { key: "CityMPG", label: "City MPG", max: 100 },
+    { key: "HP", label: "Horsepower", max: 800 },
+    { key: "Cost", label: "Dealer Cost", max: 200000 },
+    { key: "Weight", label: "Weight", max: 5000 },
+    { key: "Engine", label: "Engine Size", max: 6 },
+    { key: "Cyl", label: "Cylinders", max: 12 }
+  ];
+
+  const angle = Math.PI * 2 / features.length;
+
+  // Gitter
+  for (let i = 1; i <= 5; i++) {
+    const r = radius * i / 5;
+    svg.append("polygon")
+      .attr("points", features.map((f, j) => {
+        const a = angle * j - Math.PI / 2;
+        return `${cx + r * Math.cos(a)},${cy + r * Math.sin(a)}`;
+      }).join(" "))
+      .attr("fill", "none")
+      .attr("stroke", "#ddd");
+  }
+
+  // Achsen + Labels
+  features.forEach((f, i) => {
+    const a = angle * i - Math.PI / 2;
+    const x2 = cx + radius * Math.cos(a);
+    const y2 = cy + radius * Math.sin(a);
+
+    svg.append("line")
+      .attr("x1", cx).attr("y1", cy)
+      .attr("x2", x2).attr("y2", y2)
+      .attr("stroke", "#999");
+
+    svg.append("text")
+      .attr("x", x2 + Math.cos(a) * 15)
+      .attr("y", y2 + Math.sin(a) * 15)
+      .attr("text-anchor", Math.cos(a) > 0 ? "start" : "end")
+      .text(f.label);
+  });
+
+  // Daten
+  const values = features.map(f => (car[f.key] || 0) / f.max);
+  const line = d3.line()
+    .x((d, i) => cx + radius * d * Math.cos(angle * i - Math.PI / 2))
+    .y((d, i) => cy + radius * d * Math.sin(angle * i - Math.PI / 2));
+
+  svg.append("path")
+    .datum(values)
+    .attr("d", line)
+    .attr("fill", "#e67e22")
+    .attr("fill-opacity", 0.5)
+
+}
+
+// TABELLE + STARPLOT
 function updateInfo(d) {
-  const table = d3.select("#carTable");
-  table.html("");
+  const table = d3.select("#carTable").html("");
 
   const rows = [
     ["Name", d.Name],
@@ -146,14 +197,16 @@ function updateInfo(d) {
     ["RWD", d.RWD === "1" ? "Yes" : "No"],
     ["Retail Price", d["Retail Price"]],
     ["Dealer Cost", d["Dealer Cost"]],
-    ["Engine", `${d.Engine} L`],
+    ["Engine Size", d.Engine + " L"],
     ["Cylinders", d.Cyl],
-    ["Weight", `${d.Weight} lbs`]
+    ["City MPG", d.CityMPG],
+    ["Weight", d.Weight + " lbs"]
   ];
 
-  rows.forEach(([key, val]) => {
-    const tr = table.append("tr");
-    tr.append("td").text(key);
-    tr.append("td").text(val || "—");
+  rows.forEach(([k, v]) => {
+    table.append("tr")
+      .html(`<td>${k}</td><td>${v || "—"}</td>`);
   });
+
+  drawStarPlot(d);
 }

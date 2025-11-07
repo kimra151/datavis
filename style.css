@@ -1,77 +1,88 @@
 body {
-    height: 100%;
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #f8f9fa;
-    color: #333;
+    margin: 30px;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #f5f7fa;
+    color: #2c3e50;
 }
 
-/* Hover für alle Punkte (auch Symbole!) */
-.point:hover {
-    stroke: black !important;
-    stroke-width: 2.5px !important;
-    cursor: pointer;
+h1 {
+    color: #2980b9;
+    text-align: center;
+    font-size: 2.2em;
 }
 
-/* Layout: Plot links – Tabelle rechts */
+h2 {
+    color: #16a085;
+    margin: 20px 0 10px;
+}
+
 #container {
     display: flex;
-    justify-content: center;
-    align-items: flex-start;
     gap: 40px;
-    padding: 30px;
+    justify-content: center;
     flex-wrap: wrap;
-    max-width: 1400px;
-    margin: 0 auto;
+    max-width: 1450px;
+    margin: 20px auto;
 }
 
 #chart {
     background: white;
     padding: 25px;
-    border-radius: 15px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
-    border: 1px solid #e2e2e2;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    border: 1px solid #ddd;
 }
 
 #info {
-    min-width: 340px;
+    min-width: 360px;
     background: white;
     padding: 25px;
-    border-radius: 15px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
-    border: 2px solid #27ae60;
-}
-
-#info h3 {
-    margin: 0 0 15px 0;
-    color: #27ae60;
-    font-size: 1.5em;
-    border-bottom: 3px solid #27ae60;
-    padding-bottom: 10px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    border: 2px solid #16a085;
 }
 
 #carTable {
     width: 100%;
     border-collapse: collapse;
-    background: #f0fff4;
+    margin-bottom: 20px;
     font-size: 15px;
 }
 
 #carTable td {
-    padding: 12px 15px;
-    border: 1px solid #27ae60;
+    padding: 10px 14px;
+    border: 1px solid #16a085;
 }
 
 #carTable td:first-child {
     font-weight: bold;
-    background: #d8f5e0;
-    color: #1a6b3a;
-    width: 44%;
+    background: #d1f2eb;
+    color: #117a65;
+    width: 45%;
 }
 
-/* Legende */
+#starplot {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f0f8f5;
+    border-radius: 12px;
+    border: 2px dashed #16a085;
+    text-align: center;
+}
+
+#starplot svg {
+    margin: 10px auto;
+    display: block;
+}
+
 .legend text {
     font-size: 13px;
     fill: #2c3e50;
     font-weight: 600;
+}
+
+.point:hover {
+    stroke: black !important;
+    stroke-width: 3px !important;
+    cursor: pointer;
 }
